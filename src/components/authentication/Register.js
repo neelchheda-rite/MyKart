@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
-
-import {toast, ToastContainer} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {auth} from "../../firebase";
+import { toast} from 'react-toastify';
 
 export default function Register() {
 
@@ -18,7 +17,7 @@ export default function Register() {
                 }
         }>
 
-            <form onSubmit={handleSubmitRegister}>
+            <form onSubmit={handleRegisterSubmit}>
                 <input type='email'
                     onChange={
                         (event) => setEmail(event.target.value)
@@ -29,13 +28,23 @@ export default function Register() {
                         {width: "25rem"}
                     }
                     value={email}/>
+                    
+                    <button type="submit"className='btn btn-raised btn-outline-primary mt-3'>Register</button>
             </form>
         </div>
     </>
 
 
-    const handleSubmitRegister = () => {
-    toast("This is a toast");
+    const handleRegisterSubmit =async (event) => {
+        event.preventDefault();
+        const config={
+            url:process.env.REACT_APP_REGISTER_REDIRECT_URL,
+            handleCodeInApp:true
+        }
+        await auth.sendSignInLinkToEmail(email,config);
+        toast.success(`Verification link sent to ${email}. Cick the link to complete your registration`);
+        window.localStorage.setItem('emailForRegistration',email);
+        setEmail('');
 }
 
 
