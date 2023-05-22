@@ -50,7 +50,7 @@ export default function Register() {
             window.localStorage.setItem('emailForRegistration', email);
             setEmail('');
         }catch(error){
-            toast.error(error.message);
+            console.log(error.message);
         }
     }
 

@@ -1,7 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {auth} from '../../firebase';
+import { useNavigate } from "react-router-dom";
 import {toast} from 'react-toastify';
-export default function RegisterComplete({history}) {
+
+export default function RegisterComplete() {
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -55,6 +58,11 @@ export default function RegisterComplete({history}) {
         event.preventDefault();
         if(!email || !password){
             toast.error(`Invalid Email or Password.`);
+            return;
+        }
+        if(password.length<6){
+            toast.error(`Password length should be atleast 6 characters`);
+            return;
         }
         try {
             const browserCurrentUrl = window.location.url;
@@ -65,10 +73,11 @@ export default function RegisterComplete({history}) {
                 const currentLoggedInUser = auth.currentUser 
                 await currentLoggedInUser.updatePassword(password);
                 const userIdToken = await currentLoggedInUser.getIdTokenResult();
-                history.push('/');
+                console.log(userIdToken);
+                navigate('/');
             }
         } catch (error) { 
-            toast.error(error.message);
+            console.log(error.message);
             // error.log
         }
     }
