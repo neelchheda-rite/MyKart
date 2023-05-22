@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {auth} from "../../firebase";
-import { toast} from 'react-toastify';
+import {toast} from 'react-toastify';
 
 export default function Register() {
 
@@ -28,32 +28,39 @@ export default function Register() {
                         {width: "25rem"}
                     }
                     value={email}/>
-                    
-                    <button type="submit"className='btn btn-raised btn-outline-primary mt-3'>Register</button>
+
+                <button type="submit" className='btn btn-raised btn-outline-primary mt-3'>Register</button>
             </form>
         </div>
     </>
 
 
-    const handleRegisterSubmit =async (event) => {
-        event.preventDefault();
-        const config={
-            url:process.env.REACT_APP_REGISTER_REDIRECT_URL,
-            handleCodeInApp:true
+    const handleRegisterSubmit = async (event) => {
+        if(!email){
+            toast.error(`Invalid Email.`)
         }
-        await auth.sendSignInLinkToEmail(email,config);
-        toast.success(`Verification link sent to ${email}. Cick the link to complete your registration`);
-        window.localStorage.setItem('emailForRegistration',email);
-        setEmail('');
-}
+        try {
+            event.preventDefault();
+            const config = {
+                url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
+                handleCodeInApp: true
+            }
+            await auth.sendSignInLinkToEmail(email, config);
+            toast.success(`Verification link sent to ${email}. Cick the link to complete your registration`);
+            window.localStorage.setItem('emailForRegistration', email);
+            setEmail('');
+        }catch(error){
+            toast.error(error.message);
+        }
+    }
 
 
     return (
-    <div className="container text-center mt-5 p-5">
-        <div className="row ">
-            {
-            registerForm()
-        } </div>
-    </div>
+        <div className="container text-center mt-5 p-5">
+            <div className="row ">
+                {
+                registerForm()
+            } </div>
+        </div>
     )
-    }
+}

@@ -1,19 +1,21 @@
 import React, {useEffect, useState} from 'react';
-
+import {auth} from '../../firebase';
 import {toast} from 'react-toastify';
-
-export default function RegisterComplete() {
+export default function RegisterComplete({history}) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    useEffect(()=>{
+    useEffect(() => {
         setEmail(window.localStorage.getItem('emailForRegistration'))
-    },[])
+    }, [])
+
     const registerForm = () => <>
         <h2>
             Complete Registration
         </h2>
+
+
         <div className="col-md align-self-center mt-2"
             style={
                 {
@@ -22,14 +24,12 @@ export default function RegisterComplete() {
                 }
         }>
 
-            <form onSubmit={handleRegisterSubmit}>
+            <form onSubmit={handleCompleteRegistrationSubmit}>
                 <input type='email' className='form-control m-3'
                     style={
                         {width: "25rem"}
                     }
-                    value={
-                        email
-                    }
+                    value={email}
                     disabled/>
 
 
@@ -51,9 +51,26 @@ export default function RegisterComplete() {
     </>
 
 
-    const handleRegisterSubmit = async (event) => {
+    const handleCompleteRegistrationSubmit = async (event) => {
         event.preventDefault();
-
+        if(!email || !password){
+            toast.error(`Invalid Email or Password.`);
+        }
+        try {
+            const browserCurrentUrl = window.location.url;
+            const result = await auth.signInWithEmailLink(email, browserCurrentUrl);
+            console.log("Result",result);
+            if(result.user.emailVerified){
+                window.localStorage.removeItem('emailForRegistration');
+                const currentLoggedInUser = auth.currentUser 
+                await currentLoggedInUser.updatePassword(password);
+                const userIdToken = await currentLoggedInUser.getIdTokenResult();
+                history.push('/');
+            }
+        } catch (error) { 
+            toast.error(error.message);
+            // error.log
+        }
     }
 
 
