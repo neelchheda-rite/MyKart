@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {auth} from "../../firebase";
-import {toast} from 'react-toastify';
+import {auth, googleAuthProvider} from "../../firebase";
+// import {toast} from 'react-toastify';
 // import Axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -9,8 +9,11 @@ export default function Login() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    // const [loading, setLoading] = useState(false);
+
     let navigate=useNavigate();
     let dispatch=useDispatch();
+
     const loginForm = () => <>
         <h2>
             Login
@@ -49,26 +52,45 @@ export default function Login() {
                     }
                     value={password} placeholder='Password'/>
                 </div>
-
-                <button type="submit"  className='btn btn-raised btn-outline-primary mt-3' >Login with Email & Password</button>
-                
+                <div className="row justify-content-center">
+                <button onClick={handleLoginSubmit}  style={
+                        {width: "25rem"}
+                    } className='btn btn-raised btn-outline-primary mt-3' >Login with Email & Password</button>
+                </div>
+                <div className="row justify-content-center">
+                <button onClick={googleLogin} style={
+                        {width: "25rem",justifyContent:"center"}
+                    } className='btn btn-raised btn-outline-danger mt-3' >Google Login</button>
+                </div>
             </form>
         </div>
     </>
 
+    const googleLogin= async(event)=>{
+        auth.signInWithPopup(googleAuthProvider).then(async(result)=>{
+            const {user}=result;
+            const idTokenResult=await user.getIdTokenResult();
+            dispatch({
+                type: "LOGGED_IN_USER",
+                payload: {
+                    email: user.email,
+                    token: idTokenResult.token
+                }
+            });
+            navigate('/');
+        })
+    }
+
 
     const handleLoginSubmit = async (event) => {
-        if(!email){
-            toast.error(`Invalid Email.`)
-        }
-        if(!password){
-            toast.error(`Invalid Password.`)
-        }
+        
         try {
             event.preventDefault();
+            // setLoading(true);
             await auth.signInWithEmailAndPassword(email,password);
             navigate('/') ;     
         }catch(error){
+            // setLoading(false);
             console.log(error.message);
         }
     }

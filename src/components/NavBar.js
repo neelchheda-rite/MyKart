@@ -1,22 +1,23 @@
 import React from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import firebase from 'firebase';
-import { useDispatch } from 'react-redux';
+import {useDispatch} from 'react-redux';
 // import { useEffect } from 'react';
+import {useSelector} from 'react-redux';
 
 
 export default function NavBar() {
     let dispatch = useDispatch();
     const navigate = useNavigate();
-    const logout=()=>{
+    let {user} = useSelector((state) => ({
+        ...state
+    }));
+    const logout = () => {
         firebase.auth().signOut();
-        dispatch({
-            type:"LOGOUT",
-            payload:null,
-        }).then(navigate('/login'));
-        
+        dispatch({type: "LOGOUT", payload: null}).then(navigate('/login'));
+
     }
-   
+
     // fetchData() is called whenever data is updated.
     return (
         <>
@@ -37,23 +38,41 @@ export default function NavBar() {
                             <li className="nav-item">
                                 <Link className="nav-link text-dark" to="/about">About</Link>
                             </li>
-                            {(window.sessionStorage.getItem("Name"))?
-                                (<li className="nav-item">
-                                    <Link className="nav-link text-dark" to="/about">{window.sessionStorage.getItem("Name")}</Link>
-                                </li>):(<></>)
-                            }
-                        </ul>
+                            {
+                            (window.sessionStorage.getItem("Name")) ? (
+                                <li className="nav-item">
+                                    <Link className="nav-link text-dark" to="/about">
+                                        {
+                                        window.sessionStorage.getItem("Name")
+                                    }</Link>
+                                </li>
+                            ) : (
+                                <></>
+                            )
+                        } </ul>
                         <ul className="navbar-nav mb-2 mb-lg-0 float-right">
-                            <li className="nav-item">
-                                <Link className="nav-link active text-dark" aria-current="page" to="/login">Login</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-dark" to="/register">Register</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-dark"  onClick={logout}>Logout</Link>
-                            </li>
-                        </ul>
+                            {
+                            !user && (
+                                <>
+                                    <li className="nav-item">
+                                        <Link className="nav-link active text-dark" aria-current="page" to="/login">Login</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link className="nav-link text-dark" to="/register">Register</Link>
+                                    </li>
+                                </>
+                            )
+                        }
+                            {
+                            user && (
+                                <>
+                                    <li className="nav-item">
+                                        <Link className="nav-link text-dark"
+                                            onClick={logout}>Logout</Link>
+                                    </li>
+                                </>
+                            )
+                        } </ul>
                     </div>
                 </div>
             </nav>
