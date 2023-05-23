@@ -3,12 +3,14 @@ import {auth} from "../../firebase";
 import {toast} from 'react-toastify';
 // import Axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 export default function Login() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     let navigate=useNavigate();
+    let dispatch=useDispatch();
     const loginForm = () => <>
         <h2>
             Login
@@ -64,14 +66,8 @@ export default function Login() {
         }
         try {
             event.preventDefault();
-            auth.signInWithEmailAndPassword(email,password);
-            navigate('/') ;
-            // Axios.post("http://restapi.adequateshop.com/api/authaccount/login",{
-            //   email: email,
-            //   password: password
-            // }).then((response) => {
-            //   window.sessionStorage.setItem('Name',response.data.data.Name);
-            // });      
+            await auth.signInWithEmailAndPassword(email,password);
+            navigate('/') ;     
         }catch(error){
             console.log(error.message);
         }
